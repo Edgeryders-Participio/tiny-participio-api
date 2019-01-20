@@ -81,16 +81,16 @@ def fetch_topics_from_discourse_api():
                         else:
                             newUser['avatar_template'] = user['avatar_template'].replace("{size}","50")
                             newUser['large_avatar'] = user['avatar_template'].replace("{size}","500")
-                        if user['username'] + '.png' not in s3avatars:                            
-                            try:
-                                urllib.request.urlretrieve(newUser['avatar_template'], 'instance/avatars/' + user['username'] + '.png')
-                                output = upload_file_to_s3('instance/avatars/' + user['username'] + '.png', S3_BUCKET, user['username'] + '.png')
-                                newUser['avatar_template'] = output
-                            except:
-                              newUser['avatar_template'] = 'https://via.placeholder.com/50.png'
-                              print("Could not find " + 'instance/avatars/' + user['username'] + '.png')
-                        else:
-                            newUser['avatar_template'] = "{}{}".format(S3_LOCATION, 'instance/avatars/' + user['username'] + '.png')
+                        #if user['username'] + '.png' not in s3avatars:                            
+                        #    try:
+                        #        urllib.request.urlretrieve(newUser['avatar_template'], 'instance/avatars/' + user['username'] + '.png')
+                        #        output = upload_file_to_s3('instance/avatars/' + user['username'] + '.png', S3_BUCKET, user['username'] + '.png')
+                        #        newUser['avatar_template'] = output
+                        #    except:
+                        #      newUser['avatar_template'] = 'https://via.placeholder.com/50.png'
+                        #      print("Could not find " + 'instance/avatars/' + user['username'] + '.png')
+                        #else:
+                        #    newUser['avatar_template'] = "{}{}".format(S3_LOCATION, 'instance/avatars/' + user['username'] + '.png')
                         tempData['users'][user['id']] = newUser
                 for topic in pageData['topic_list']['topics']:
                     if not topic['id'] in tempData['topic_list']['topics']:
