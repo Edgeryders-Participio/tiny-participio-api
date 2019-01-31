@@ -23,12 +23,6 @@ discourse_root_url = 'https://forum.blivande.com/'
 discourse_categories = ['/c/congregation', '/c/tau', '/c/beta', '/c/events', '/c/web']
 discourse_front_page_content = ['77','66','67','78','68','36','50','51','52','53','54','56','55','57','58','59','60']
 
-s3 = boto3.client(
-   "s3",
-   aws_access_key_id=S3_KEY,
-   aws_secret_access_key=S3_SECRET
-)
-
 def upload_file_to_s3(file, bucket_name, key, acl="public-read" ):
     try:
         with open(file, 'rb') as data:
@@ -61,8 +55,8 @@ def fetch_data_from_git_api():
 
 def fetch_topics_from_discourse_api():
     print('Getting Discourse data')
-    s3data = s3.list_objects_v2(Bucket=S3_BUCKET)['Contents']
-    s3avatars = [o['Key'][17:] for o in s3data if 'instance/avatars/' in o['Key']]
+    #s3data = s3.list_objects_v2(Bucket=S3_BUCKET)['Contents']
+    #s3avatars = [o['Key'][17:] for o in s3data if 'instance/avatars/' in o['Key']]
     for category in discourse_categories:
         tempData = {'users': {}, 'topic_list': {'topics': {}}}
         page = 0
@@ -95,11 +89,16 @@ def fetch_topics_from_discourse_api():
                 for topic in pageData['topic_list']['topics']:
                     if not topic['id'] in tempData['topic_list']['topics']:
                         tempData['topic_list']['topics'][topic['id']] = topic
-                        post_url = discourse_root_url + '/posts/' + str(topic['topic_post_id']) + '.json'
-                        rq = urllib.request.Request(post_url)
+                        topicUrl = discourse_root_url + 't/' + str(topic['id']) + '.json'
+                        rq = urllib.request.Request(topicUrl)
                         with urllib.request.urlopen(rq) as url:
-                            postData = json.loads(url.read().decode())
-                            tempData['topic_list']['topics'][topic['id']]['post'] = postData['raw']
+                            topicData = json.loads(url.read().decode())
+                            postUrl = discourse_root_url + 'posts/' + str(topicData['post_stream']['posts'][0]['id']) + '.json'
+                            print('Getting ' + postUrl)
+                            rq = urllib.request.Request(postUrl)
+                            with urllib.request.urlopen(rq) as url:
+                                postData = json.loads(url.read().decode())
+                                tempData['topic_list']['topics'][topic['id']]['post'] = postData['raw']
                         if 'web-presentation' in topic['tags']:
                             tempData['users'][topic['posters'][0]['user_id']]['presentation'] = tempData['topic_list']['topics'][topic['id']]['post']
                             tempData['users'][topic['posters'][0]['user_id']]['name'] = tempData['topic_list']['topics'][topic['id']]['title']
