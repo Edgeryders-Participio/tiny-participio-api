@@ -19,9 +19,9 @@ storage['gitData'] = {}
 storage['discourse'] = {'frontpage': {}, 'topics': {}}
 
 git_urls = ['repos/Edgeryders-Participio/realities/stats/code_frequency', 'repos/Edgeryders-Participio/realities/contributors']
-discourse_root_url = 'https://edgeryders.eu'
-discourse_categories = ['/c/participio', '/c/blivande', '/c/blivande/blivande-web-content']
-discourse_front_page_content = ['9176','9179','9180','9181','9182','9184','9199','9290', '9391', '9392', '9393', '9394', '9398', '9397', '9400', '9401', '9402', '9403']
+discourse_root_url = 'https://forum.blivande.com/'
+discourse_categories = ['/c/congregation', '/c/tau', '/c/beta', '/c/events', '/c/web']
+discourse_front_page_content = ['77','66','67','78','68','36','50','51','52','53','54','56','55','57','58','59','60']
 
 s3 = boto3.client(
    "s3",
@@ -100,7 +100,7 @@ def fetch_topics_from_discourse_api():
                         with urllib.request.urlopen(rq) as url:
                             postData = json.loads(url.read().decode())
                             tempData['topic_list']['topics'][topic['id']]['post'] = postData['raw']
-                        if 'blivande-presentation' in topic['tags']:
+                        if 'web-presentation' in topic['tags']:
                             tempData['users'][topic['posters'][0]['user_id']]['presentation'] = tempData['topic_list']['topics'][topic['id']]['post']
                             tempData['users'][topic['posters'][0]['user_id']]['name'] = tempData['topic_list']['topics'][topic['id']]['title']
                             tempData['users'][topic['posters'][0]['user_id']]['public'] = True
@@ -140,11 +140,11 @@ class getParticipioTopics(Resource):
 
 class getBlivandeTopics(Resource):
     def get(self):
-        return storage['discourse']['/c/blivande/blivande-web-content']
+        return storage['discourse']['/c/web']
 
 class getBlivandePresentations(Resource):
     def get(self):
-        users = storage['discourse']['/c/blivande/blivande-web-content']['users']
+        users = storage['discourse']['/c/web']['users']
         presentations = {key:value for (key,value) in users.items() if value['public'] == 1}
         return presentations
 
