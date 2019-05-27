@@ -68,12 +68,10 @@ def fetch_frontpage_content_from_discourse_api():
 
 app = Flask(__name__)
 api = Api(app)
-sched = BackgroundScheduler()
-sched.start()
-sched.add_job(fetch_topics_from_discourse_api, 'interval', minutes=10)
-sched.add_job(fetch_frontpage_content_from_discourse_api, 'interval', minutes=10)
-fetch_topics_from_discourse_api()
-fetch_frontpage_content_from_discourse_api()
+#sched = BackgroundScheduler()
+#sched.start()
+#sched.add_job(fetch_topics_from_discourse_api, 'interval', minutes=10)
+#sched.add_job(fetch_frontpage_content_from_discourse_api, 'interval', minutes=10)
 
 class getBlivandeTopics(Resource):
     def get(self):
@@ -95,5 +93,7 @@ api.add_resource(getBlivandeFrontpageContent, '/discourse/blivande/frontpage')
 
 
 if __name__ == '__main__':
+    fetch_topics_from_discourse_api()
+    fetch_frontpage_content_from_discourse_api()
     os.makedirs(os.path.join(app.instance_path, 'avatars'), exist_ok=True)
     app.run(debug=True, threaded=True)
