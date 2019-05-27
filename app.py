@@ -9,7 +9,7 @@ storage = {}
 storage['discourse'] = {'frontpage': {}, 'topics': {}}
 
 discourse_root_url = 'https://forum.blivande.com/'
-discourse_categories = ['/c/congregation', '/c/tau', '/c/beta', '/c/events', '/c/web']
+discourse_categories = ['/c/web']
 discourse_front_page_content = ['77','66','67','78','68','36','50','51','52','53','54','56','55','57','58','59','60']
 
 
@@ -19,42 +19,37 @@ def fetch_topics_from_discourse_api():
         tempData = {'users': {}, 'topic_list': {'topics': {}}}
         page = 0
         more = True
-        while more:
-            path = discourse_root_url + category + '.json?page=' + str(page)
-            rq = urllib.request.Request(path)
-            with urllib.request.urlopen(rq) as url:
-                pageData = json.loads(url.read().decode())
-                for user in pageData['users']:
-                    if user['id'] not in tempData['users']:
-                        newUser = {'id': user['id'], 'username': user['username'], 'presentation': {}, 'name': '', 'public': False}
-                        if user['avatar_template'][:4] != 'http':
-                            newUser['avatar_template'] = discourse_root_url + user['avatar_template'].replace("{size}","50")
-                            newUser['large_avatar'] = discourse_root_url + user['avatar_template'].replace("{size}","500")
-                        else:
-                            newUser['avatar_template'] = user['avatar_template'].replace("{size}","50")
-                            newUser['large_avatar'] = user['avatar_template'].replace("{size}","500")
-                        tempData['users'][user['id']] = newUser
-                for topic in pageData['topic_list']['topics']:
-                    if not topic['id'] in tempData['topic_list']['topics']:
-                        tempData['topic_list']['topics'][topic['id']] = topic
-                        topicUrl = discourse_root_url + 't/' + str(topic['id']) + '.json'
-                        rq = urllib.request.Request(topicUrl)
+        path = discourse_root_url + category + '.json?page=' + str(page)
+        rq = urllib.request.Request(path)
+        with urllib.request.urlopen(rq) as url:
+            pageData = json.loads(url.read().decode())
+            for user in pageData['users']:
+                if user['id'] not in tempData['users']:
+                    newUser = {'id': user['id'], 'username': user['username'], 'presentation': {}, 'name': '', 'public': False}
+                    if user['avatar_template'][:4] != 'http':
+                        newUser['avatar_template'] = discourse_root_url + user['avatar_template'].replace("{size}","50")
+                        newUser['large_avatar'] = discourse_root_url + user['avatar_template'].replace("{size}","500")
+                    else:
+                        newUser['avatar_template'] = user['avatar_template'].replace("{size}","50")
+                        newUser['large_avatar'] = user['avatar_template'].replace("{size}","500")
+                    tempData['users'][user['id']] = newUser
+            for topic in pageData['topic_list']['topics']:
+                if not topic['id'] in tempData['topic_list']['topics']:
+                    tempData['topic_list']['topics'][topic['id']] = topic
+                    topicUrl = discourse_root_url + 't/' + str(topic['id']) + '.json'
+                    rq = urllib.request.Request(topicUrl)
+                    with urllib.request.urlopen(rq) as url:
+                        topicData = json.loads(url.read().decode())
+                        postUrl = discourse_root_url + 'posts/' + str(topicData['post_stream']['posts'][0]['id']) + '.json'
+                        print('Getting ' + postUrl)
+                        rq = urllib.request.Request(postUrl)
                         with urllib.request.urlopen(rq) as url:
-                            topicData = json.loads(url.read().decode())
-                            postUrl = discourse_root_url + 'posts/' + str(topicData['post_stream']['posts'][0]['id']) + '.json'
-                            print('Getting ' + postUrl)
-                            rq = urllib.request.Request(postUrl)
-                            with urllib.request.urlopen(rq) as url:
-                                postData = json.loads(url.read().decode())
-                                tempData['topic_list']['topics'][topic['id']]['post'] = postData['raw']
-                        if 'web-presentation' in topic['tags']:
-                            tempData['users'][topic['posters'][0]['user_id']]['presentation'] = tempData['topic_list']['topics'][topic['id']]['post']
-                            tempData['users'][topic['posters'][0]['user_id']]['name'] = tempData['topic_list']['topics'][topic['id']]['title']
-                            tempData['users'][topic['posters'][0]['user_id']]['public'] = True
-                if 'more_topics_url' in pageData['topic_list']:
-                    page += 1
-                else:
-                    more = False
+                            postData = json.loads(url.read().decode())
+                            tempData['topic_list']['topics'][topic['id']]['post'] = postData['raw']
+                    if 'web-presentation' in topic['tags']:
+                        tempData['users'][topic['posters'][0]['user_id']]['presentation'] = tempData['topic_list']['topics'][topic['id']]['post']
+                        tempData['users'][topic['posters'][0]['user_id']]['name'] = tempData['topic_list']['topics'][topic['id']]['title']
+                        tempData['users'][topic['posters'][0]['user_id']]['public'] = True
         storage['discourse'][category] = tempData
 
 def fetch_frontpage_content_from_discourse_api():
