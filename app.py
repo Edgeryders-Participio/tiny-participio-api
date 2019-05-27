@@ -3,7 +3,7 @@ import json
 import urllib
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
-from apscheduler.schedulers.background import BackgroundScheduler
+#from apscheduler.schedulers.background import BackgroundScheduler
 
 storage = {}
 storage['discourse'] = {'frontpage': {}, 'topics': {}}
