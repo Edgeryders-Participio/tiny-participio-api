@@ -86,9 +86,9 @@ api.add_resource(getBlivandeTopics, '/discourse/blivande')
 api.add_resource(getBlivandePresentations, '/discourse/blivande/presentations')
 api.add_resource(getBlivandeFrontpageContent, '/discourse/blivande/frontpage')
 
+fetch_topics_from_discourse_api()
+fetch_frontpage_content_from_discourse_api()
 
 if __name__ == '__main__':
-    fetch_topics_from_discourse_api()
-    fetch_frontpage_content_from_discourse_api()
     os.makedirs(os.path.join(app.instance_path, 'avatars'), exist_ok=True)
     app.run(debug=True, threaded=True)
