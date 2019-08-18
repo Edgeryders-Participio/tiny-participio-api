@@ -10,7 +10,7 @@ storage['discourse'] = {'frontpage': {}, 'topics': {}}
 
 discourse_root_url = 'https://forum.blivande.com/'
 discourse_categories = ['/c/web']
-discourse_front_page_content = ['77','66','67','78','68','36','50','51','52','53','54','56','55','57','58','59','60']
+discourse_front_page_content = ['77','66','67','78','68','36','50','51','52','53','54','56','55','57','58','59','60','292','293']
 
 
 def fetch_topics_from_discourse_api():
